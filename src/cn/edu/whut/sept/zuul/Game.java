@@ -14,6 +14,7 @@
 package cn.edu.whut.sept.zuul;
 
 import cn.edu.whut.sept.zuul.POJO.Room;
+import cn.edu.whut.sept.zuul.POJO.Things;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -38,6 +39,7 @@ public class Game
     private void createRooms()
     {
         Room outside, theater, pub, lab, office;
+        Things apple;
 
         // create the rooms
         outside = new Room("outside the main entrance of the university");
@@ -45,6 +47,9 @@ public class Game
         pub = new Room("in the campus pub");
         lab = new Room("in a computing lab");
         office = new Room("in the computing admin office");
+
+        //创建初始物品
+        apple =new Things("apple",10,"妈个鸡傻逼课");
 
         // initialise room exits
         outside.setExit("east", theater);
@@ -59,6 +64,7 @@ public class Game
         lab.setExit("east", office);
 
         office.setExit("west", lab);
+        outside.addNewThings(apple);
 
         currentRoom = outside;  // start game outside
     }
@@ -106,6 +112,7 @@ public class Game
         map.put("help", this::printHelp);
         map.put("go", this::goRoom);
         map.put("quit", this::quit);
+        map.put("look",this::look);
         return map.get(param).apply(command);
 
     }
@@ -172,6 +179,21 @@ public class Game
     }
 
     /**
+     *
+     * @param command 命令编号
+     * @return 如果有东西返回true，否则为false
+     */
+    private Integer look(Command command){
+        if(command.hasSecondWord()) {
+            System.out.println("Look what?");
+        }
+        else{
+           currentRoom.showThings();
+        }
+        return 0;
+    }
+
+    /**
      * 执行Quit指令，用户退出游戏。如果用户在命令中输入了其他参数，则进一步询问用户是否真的退出.
      * @return 如果游戏需要退出则返回true，否则返回false.
      */
@@ -185,4 +207,5 @@ public class Game
             return 1;  // signal that we want to quit
         }
     }
+
 }
