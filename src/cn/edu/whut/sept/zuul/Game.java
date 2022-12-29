@@ -13,6 +13,11 @@
  */
 package cn.edu.whut.sept.zuul;
 
+import cn.edu.whut.sept.zuul.POJO.Room;
+
+import java.util.HashMap;
+import java.util.function.Function;
+
 public class Game
 {
     private Parser parser;
@@ -67,9 +72,8 @@ public class Game
 
         // Enter the main command loop.  Here we repeatedly read commands and
         // execute them until the game is over.
-
-        boolean finished = false;
-        while (! finished) {
+        Integer finished = 0;
+        while (finished == 0) {
             Command command = parser.getCommand();
             finished = processCommand(command);
         }
@@ -82,39 +86,46 @@ public class Game
     private void printWelcome()
     {
         System.out.println();
-        System.out.println("Welcome to the World of Zuul!");
-        System.out.println("World of Zuul is a new, incredibly boring adventure game.");
+        System.out.println("Welcome to the Koprulu Sector!");
+        System.out.println("Koprulu Sector is a piece of sh*t .");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
         System.out.println(currentRoom.getLongDescription());
     }
 
     /**
+     * 用于选择执行哪一种操作
+     * 简化了之前的if语句，让它更加合理
+     * @param command 命令
+     * @param param 操作的种类
+     * @return 返回程序是否继续进行
+     */
+    public Integer selectCommand(String param, Command command)
+    {
+        HashMap<String, Function<Command, Integer>> map = new HashMap<>();
+        map.put("help", this::printHelp);
+        map.put("go", this::goRoom);
+        map.put("quit", this::quit);
+        return map.get(param).apply(command);
+
+    }
+    /**
      * 执行用户输入的游戏指令.
      * @param command 待处理的游戏指令，由解析器从用户输入内容生成.
      * @return 如果执行的是游戏结束指令，则返回true，否则返回false.
      */
-    private boolean processCommand(Command command)
+    private Integer processCommand(Command command)
     {
-        boolean wantToQuit = false;
+        Integer wantToQuit;
 
         if(command.isUnknown()) {
             System.out.println("I don't know what you mean...");
-            return false;
+            return 0;
         }
-
         String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        }
-        else if (commandWord.equals("go")) {
-            goRoom(command);
-        }
-        else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
-        }
-        // else command not recognised.
+        wantToQuit = selectCommand(commandWord, command);
         return wantToQuit;
+
     }
 
     // implementations of user commands:
@@ -123,25 +134,26 @@ public class Game
      * 执行help指令，在终端打印游戏帮助信息.
      * 此处会输出游戏中用户可以输入的命令列表
      */
-    private void printHelp()
+    private Integer printHelp(Command command)
     {
         System.out.println("You are lost. You are alone. You wander");
         System.out.println("around at the university.");
         System.out.println();
         System.out.println("Your command words are:");
         parser.showCommands();
+        return 0;
     }
 
     /**
      * 执行go指令，向房间的指定方向出口移动，如果该出口连接了另一个房间，则会进入该房间，
      * 否则打印输出错误提示信息.
      */
-    private void goRoom(Command command)
+    private Integer goRoom(Command command)
     {
         if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
-            return;
+            return 0;
         }
 
         String direction = command.getSecondWord();
@@ -156,20 +168,21 @@ public class Game
             currentRoom = nextRoom;
             System.out.println(currentRoom.getLongDescription());
         }
+        return 0;
     }
 
     /**
      * 执行Quit指令，用户退出游戏。如果用户在命令中输入了其他参数，则进一步询问用户是否真的退出.
      * @return 如果游戏需要退出则返回true，否则返回false.
      */
-    private boolean quit(Command command)
+    private Integer quit(Command command)
     {
         if(command.hasSecondWord()) {
             System.out.println("Quit what?");
-            return false;
+            return 0;
         }
         else {
-            return true;  // signal that we want to quit
+            return 1;  // signal that we want to quit
         }
     }
 }
