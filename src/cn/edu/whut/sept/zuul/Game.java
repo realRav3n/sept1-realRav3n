@@ -49,7 +49,7 @@ public class Game
         office = new Room("in the computing admin office");
 
         //创建初始物品
-        apple =new Things("apple",10,"妈个鸡傻逼课");
+        apple =new Things("apple",10,"我是一个朴实无华的苹果");
 
         // initialise room exits
         outside.setExit("east", theater);
