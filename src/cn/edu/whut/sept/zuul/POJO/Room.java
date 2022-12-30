@@ -1,22 +1,32 @@
 package cn.edu.whut.sept.zuul.POJO;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Set;
 import java.util.HashMap;
 import cn.edu.whut.sept.zuul.POJO.Things;
 
 public class Room
 {
+    private int id;
     private String description;
     private HashMap<String, Room> exits;
 
     private ArrayList<Things> staff;
+    private String lastRoom;
+    private boolean trap;
 
-    public Room(String description)
+    public Room(int id,String description)
     {
+        this.id=id;
         this.description = description;
         exits = new HashMap<>();
         staff =new ArrayList<>();
+        trap = false;
+    }
+
+    public void setLastRoom(String lastRoom) {
+        this.lastRoom = lastRoom;
     }
 
     /**
@@ -24,14 +34,31 @@ public class Room
      * @param direction 方向
      * @param neighbor 相邻的房间
      */
-    public void setExit(String direction, Room neighbor)
-    {
+
+    public void setExit(String direction, Room neighbor) {
         exits.put(direction, neighbor);
     }
 
-    public String getShortDescription()
-    {
+    public String getShortDescription() {
         return description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setTrap(boolean status){
+        trap =status;
+    }
+    public boolean getTrap() {
+        return trap;
+    }
+
+    public String getRandomDirection() {
+        ArrayList<String> keys = new ArrayList<>();
+        for(String i : exits.keySet()) keys.add(i);
+        Random rand = new Random();
+        return keys.get(rand.nextInt(keys.size()));
     }
 
     public String getLongDescription()
@@ -52,15 +79,7 @@ public class Room
         }
         return returnString;
     }
-    /**
-     * 获取指定方向的房间
-     * @param direction 选定的方向
-     * @return 房间
-     */
-    public Room getExit(String direction)
-    {
-        return exits.get(direction);
-    }
+
 
     public void addNewThings(Things things){
         this.staff.add(things);
@@ -72,6 +91,14 @@ public class Room
             System.out.println(thing.getName()+","+thing.getWeight()+","+thing.getDescription());
         }
         return staff.size();
+    }
+    /**
+     * 获取指定方向的房间
+     * @param direction 选定的方向
+     * @return 房间
+     */
+    public Room getExit(String direction) {
+        return exits.get(direction);
     }
 }
 

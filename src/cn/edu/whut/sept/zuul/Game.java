@@ -16,13 +16,19 @@ package cn.edu.whut.sept.zuul;
 import cn.edu.whut.sept.zuul.POJO.Room;
 import cn.edu.whut.sept.zuul.POJO.Things;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.function.Function;
 
 public class Game
 {
     private Parser parser;
     private Room currentRoom;
+    private HashMap<Integer,Room> idRoomMap =new HashMap<>();
+
+    private int totalRoom = 6;
+
 
     /**
      * 创建游戏并初始化内部数据和解析器.
@@ -38,25 +44,35 @@ public class Game
      */
     private void createRooms()
     {
-        Room outside, theater, pub, lab, office;
+        Room outside, theater, pub, lab, office,transport;
         Things apple;
 
-        // create the rooms
-        outside = new Room("outside the main entrance of the university");
-        theater = new Room("in a lecture theater");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-
+        //创建房间
+        outside = new Room(1,"outside the main entrance of the university");
+        theater = new Room(3,"in a lecture theater");
+        pub = new Room(2,"in the campus pub");
+        lab = new Room(5,"in a computing lab");
+        office = new Room(6,"in the computing admin office");
+        transport =new Room(4,"middle there is a magical spring,you goes up..");
+        //建立索引
+        idRoomMap.put(1,outside);
+        idRoomMap.put(2,pub);
+        idRoomMap.put(3,theater);
+        idRoomMap.put(4,transport);
+        idRoomMap.put(5,lab);
+        idRoomMap.put(6,office);
         //创建初始物品
         apple =new Things("apple",10,"我是一个朴实无华的苹果");
-
         // initialise room exits
         outside.setExit("east", theater);
         outside.setExit("south", lab);
         outside.setExit("west", pub);
 
         theater.setExit("west", outside);
+        theater.setExit("east",transport);
+
+        transport.setExit("west",theater);
+        transport.setTrap(true);
 
         pub.setExit("east", outside);
 
@@ -173,6 +189,11 @@ public class Game
         }
         else {
             currentRoom = nextRoom;
+            if(currentRoom.getTrap())
+            {
+                System.out.println("You were transferred to a random room");
+                currentRoom = randomToRoom(currentRoom);
+            }
             System.out.println(currentRoom.getLongDescription());
         }
         return 0;
@@ -197,6 +218,17 @@ public class Game
      * 执行Quit指令，用户退出游戏。如果用户在命令中输入了其他参数，则进一步询问用户是否真的退出.
      * @return 如果游戏需要退出则返回true，否则返回false.
      */
+    private Room randomToRoom(Room currentRoom)
+    {
+        int randomPlace;
+        do{
+            //防一手原地tp
+            Random rand = new Random();
+            randomPlace = rand.nextInt(totalRoom);
+        } while(randomPlace == currentRoom.getId());
+        currentRoom = idRoomMap.get(randomPlace);
+        return currentRoom;
+    }
     private Integer quit(Command command)
     {
         if(command.hasSecondWord()) {
