@@ -16,9 +16,7 @@ package cn.edu.whut.sept.zuul;
 import cn.edu.whut.sept.zuul.POJO.Room;
 import cn.edu.whut.sept.zuul.POJO.Things;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 
 public class Game
@@ -26,6 +24,7 @@ public class Game
     private Parser parser;
     private Room currentRoom;
     private HashMap<Integer,Room> idRoomMap =new HashMap<>();
+    private Deque<Integer> stack =new ArrayDeque<>();
 
     private int totalRoom = 6;
 
@@ -48,19 +47,19 @@ public class Game
         Things apple;
 
         //创建房间
-        outside = new Room(1,"outside the main entrance of the university");
-        theater = new Room(3,"in a lecture theater");
-        pub = new Room(2,"in the campus pub");
-        lab = new Room(5,"in a computing lab");
-        office = new Room(6,"in the computing admin office");
-        transport =new Room(4,"middle there is a magical spring,you goes up..");
+        outside = new Room("outside the main entrance of the university");
+        theater = new Room("in a lecture theater");
+        pub = new Room("in the campus pub");
+        lab = new Room("in a computing lab");
+        office = new Room("in the computing admin office");
+        transport =new Room("middle there is a magical spring,you goes up..");
         //建立索引
-        idRoomMap.put(1,outside);
-        idRoomMap.put(2,pub);
-        idRoomMap.put(3,theater);
-        idRoomMap.put(4,transport);
-        idRoomMap.put(5,lab);
-        idRoomMap.put(6,office);
+        idRoomMap.put(outside.getId(),outside);
+        idRoomMap.put(theater.getId(),theater);
+        idRoomMap.put(pub.getId(),pub);
+        idRoomMap.put(lab.getId(),lab);
+        idRoomMap.put(office.getId(),office);
+        idRoomMap.put(transport.getId(),transport);
         //创建初始物品
         apple =new Things("apple",10,"我是一个朴实无华的苹果");
         // initialise room exits
@@ -83,6 +82,7 @@ public class Game
         outside.addNewThings(apple);
 
         currentRoom = outside;  // start game outside
+        stack.add(1);
     }
 
     /**
@@ -91,9 +91,6 @@ public class Game
     public void play()
     {
         printWelcome();
-
-        // Enter the main command loop.  Here we repeatedly read commands and
-        // execute them until the game is over.
         Integer finished = 0;
         while (finished == 0) {
             Command command = parser.getCommand();
@@ -129,6 +126,7 @@ public class Game
         map.put("go", this::goRoom);
         map.put("quit", this::quit);
         map.put("look",this::look);
+        map.put("back",this::back);
         return map.get(param).apply(command);
 
     }
@@ -178,9 +176,7 @@ public class Game
             System.out.println("Go where?");
             return 0;
         }
-
         String direction = command.getSecondWord();
-
         // Try to leave current room.
         Room nextRoom = currentRoom.getExit(direction);
 
@@ -194,6 +190,7 @@ public class Game
                 System.out.println("You were transferred to a random room");
                 currentRoom = randomToRoom(currentRoom);
             }
+            stack.addFirst(currentRoom.getId());
             System.out.println(currentRoom.getLongDescription());
         }
         return 0;
@@ -214,12 +211,27 @@ public class Game
         return 0;
     }
 
+    private Integer back(Command command){
+        if(command.hasSecondWord()) {
+            System.out.println("Back what?");
+        }
+        else {
+            Room lastRoom = backLastRoom(currentRoom);
+            try{
+                currentRoom = lastRoom;
+                System.out.println(currentRoom.getLongDescription());
+            }catch (Exception e){
+                System.out.println("You have no place to HIDE!!!!!");
+            }
+        }
+        return 0;
+    }
+
     /**
      * 执行Quit指令，用户退出游戏。如果用户在命令中输入了其他参数，则进一步询问用户是否真的退出.
      * @return 如果游戏需要退出则返回true，否则返回false.
      */
-    private Room randomToRoom(Room currentRoom)
-    {
+    private Room randomToRoom(Room currentRoom) {
         int randomPlace;
         do{
             //防一手原地tp
@@ -229,8 +241,15 @@ public class Game
         currentRoom = idRoomMap.get(randomPlace);
         return currentRoom;
     }
-    private Integer quit(Command command)
-    {
+    private Room backLastRoom(Room currentRoom){
+        try{
+            stack.removeFirst();
+            return idRoomMap.get(stack.peek());
+        } catch (Exception e){
+            return currentRoom;
+        }
+    }
+    private Integer quit(Command command) {
         if(command.hasSecondWord()) {
             System.out.println("Quit what?");
             return 0;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 import java.util.HashMap;
-import cn.edu.whut.sept.zuul.POJO.Things;
 
 public class Room
 {
@@ -13,20 +12,16 @@ public class Room
     private HashMap<String, Room> exits;
 
     private ArrayList<Things> staff;
-    private String lastRoom;
     private boolean trap;
+    private static int cnt = 0;
 
-    public Room(int id,String description)
+    public Room(String description)
     {
-        this.id=id;
+        id = ++cnt;
         this.description = description;
         exits = new HashMap<>();
         staff =new ArrayList<>();
         trap = false;
-    }
-
-    public void setLastRoom(String lastRoom) {
-        this.lastRoom = lastRoom;
     }
 
     /**
@@ -52,13 +47,6 @@ public class Room
     }
     public boolean getTrap() {
         return trap;
-    }
-
-    public String getRandomDirection() {
-        ArrayList<String> keys = new ArrayList<>();
-        for(String i : exits.keySet()) keys.add(i);
-        Random rand = new Random();
-        return keys.get(rand.nextInt(keys.size()));
     }
 
     public String getLongDescription()
