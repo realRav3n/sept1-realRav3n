@@ -13,6 +13,7 @@
  */
 package cn.edu.whut.sept.zuul;
 
+import cn.edu.whut.sept.zuul.POJO.Player;
 import cn.edu.whut.sept.zuul.POJO.Room;
 import cn.edu.whut.sept.zuul.POJO.Things;
 
@@ -23,9 +24,9 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
-    private HashMap<Integer,Room> idRoomMap =new HashMap<>();
-    private Deque<Integer> stack =new ArrayDeque<>();
-
+    private HashMap<Integer,Room> idRoomMap;
+    private Deque<Integer> stack;
+    private Player nowPlayer;
     private int totalRoom = 6;
 
 
@@ -34,8 +35,12 @@ public class Game
      */
     public Game()
     {
-        createRooms();
         parser = new Parser();
+        stack =new ArrayDeque<>();
+        idRoomMap =new HashMap<>();
+        createRooms();
+        createPlayers();
+
     }
 
     /**
@@ -66,6 +71,7 @@ public class Game
         outside.setExit("east", theater);
         outside.setExit("south", lab);
         outside.setExit("west", pub);
+        outside.addNewThings(apple);
 
         theater.setExit("west", outside);
         theater.setExit("east",transport);
@@ -74,12 +80,13 @@ public class Game
         transport.setTrap(true);
 
         pub.setExit("east", outside);
+        pub.setMagicCookie();
 
         lab.setExit("north", outside);
         lab.setExit("east", office);
 
         office.setExit("west", lab);
-        outside.addNewThings(apple);
+
 
         currentRoom = outside;  // start game outside
         stack.add(1);
@@ -127,8 +134,22 @@ public class Game
         map.put("quit", this::quit);
         map.put("look",this::look);
         map.put("back",this::back);
+        map.put("take", this::take);
+        map.put("drop", this::drop);
+        map.put("items", this::showItems);
+        map.put("eat", this::eat);
         return map.get(param).apply(command);
+    }
 
+    /**
+     * 创建一个玩家
+     */
+    private void createPlayers()
+    {
+        Player player;
+        player = new Player(10, "Raven", 1);
+
+        nowPlayer = player;
     }
     /**
      * 执行用户输入的游戏指令.
@@ -191,6 +212,7 @@ public class Game
                 currentRoom = randomToRoom(currentRoom);
             }
             stack.addFirst(currentRoom.getId());
+            nowPlayer.setCurrentRoomId(currentRoom.getId());
             System.out.println(currentRoom.getLongDescription());
         }
         return 0;
@@ -211,6 +233,11 @@ public class Game
         return 0;
     }
 
+    /**
+     * 返回上一房间
+     * @param command 指令
+     * @return 0/1
+     */
     private Integer back(Command command){
         if(command.hasSecondWord()) {
             System.out.println("Back what?");
@@ -228,8 +255,105 @@ public class Game
     }
 
     /**
-     * 执行Quit指令，用户退出游戏。如果用户在命令中输入了其他参数，则进一步询问用户是否真的退出.
-     * @return 如果游戏需要退出则返回true，否则返回false.
+     * 拿物品
+     * @param command 命令
+     * @return 0/1
+     */
+    private Integer take(Command command)
+    {
+        if(!command.hasSecondWord()) {
+            System.out.println("Take what?");
+            return 0;
+        }
+        String takeItemName = command.getSecondWord();
+        int pos = -1;
+        ArrayList<Things> staff = currentRoom.getStaff();
+
+        for(int i = 0; i < staff.size(); i++) {
+            Things thing = staff.get(i);
+            if(thing.getName().equals(takeItemName)) {
+                pos = i;
+                break;
+            }
+        }
+        if(pos == -1) {
+            System.out.println("you can't take the item that doesn't exist");
+            return 0;
+        }
+        if(nowPlayer.takeThings(staff.get(pos))) {
+            staff.remove(pos);
+            System.out.println("Successfully take");
+        }
+        else {
+            System.out.println("no room for staff,you have to leave sth");
+        }
+        return 0;
+    }
+
+    /**
+     * 丢弃物品
+     * @param command 指令
+     * @return 0/1
+     */
+    private Integer drop(Command command)
+    {
+        if(!command.hasSecondWord()) {
+            System.out.println("Drop what?");
+            return 0;
+        }
+        String dropItemName = command.getSecondWord();
+        Things thing = nowPlayer.dropThings(dropItemName);
+        if(thing == null) {
+            System.out.println("you don't have this item!");
+            return 0;
+        }
+        currentRoom.addNewThings(thing);
+        return 0;
+    }
+
+    /**
+     * 展示房间内物品
+     * @param command 指令
+     * @return 0/1
+     */
+    private Integer showItems(Command command)
+    {
+        currentRoom.showThings();
+        nowPlayer.showThings();
+        return 0;
+    }
+
+    /**
+     * 吃饼干
+     * @param command 指令
+     * @return 1/0
+     */
+    private Integer eat(Command command)
+    {
+        if(!command.hasSecondWord()) {
+            System.out.println("Eat what?");
+            return 0;
+        }
+        String eatCookie = command.getSecondWord();
+        if(!eatCookie.equals("cookie")) {
+            System.out.println("you can't eat " + eatCookie);
+            return 0;
+        }
+        if(currentRoom.getMagicCookie()) {
+            nowPlayer.updateLimitWeight(10);
+            System.out.println("you eat a magic cookie,now you can take 10kg things more!");
+        }
+        else {
+            System.out.println("no magic cookie in the room");
+        }
+
+        return 0;
+    }
+
+    /**
+     * 随机跳转
+     * @param currentRoom 当前房间
+     * @return 跳转后的房间
      */
     private Room randomToRoom(Room currentRoom) {
         int randomPlace;
@@ -241,6 +365,12 @@ public class Game
         currentRoom = idRoomMap.get(randomPlace);
         return currentRoom;
     }
+
+    /**
+     * 回到上一房间
+     * @param currentRoom 当前房间
+     * @return 返回后的房间
+     */
     private Room backLastRoom(Room currentRoom){
         try{
             stack.removeFirst();
@@ -249,6 +379,12 @@ public class Game
             return currentRoom;
         }
     }
+
+    /**
+     * 退出
+     * @param command 指令
+     * @return 没什么好说的
+     */
     private Integer quit(Command command) {
         if(command.hasSecondWord()) {
             System.out.println("Quit what?");

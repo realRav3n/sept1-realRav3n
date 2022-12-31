@@ -1,14 +1,24 @@
 package cn.edu.whut.sept.zuul;
 
+import java.util.HashMap;
+
 public class CommandWords
 {
-    private static final String[] validCommands = {
-            "go", "quit", "help","look","back"
-    };
+    private final HashMap<String, Integer> validCommands;
+
 
     public CommandWords()
     {
-        // nothing to do at the moment...
+        validCommands = new HashMap<>();
+        validCommands.put("go", 1);
+        validCommands.put("quit", 1);
+        validCommands.put("help", 1);
+        validCommands.put("look", 1);
+        validCommands.put("back", 1);
+        validCommands.put("take", 1);
+        validCommands.put("drop", 1);
+        validCommands.put("items", 1);
+        validCommands.put("eat", 1);
     }
 
     /**
@@ -18,11 +28,9 @@ public class CommandWords
      */
     public boolean isCommand(String aString)
     {
-        for(int i = 0; i < validCommands.length; i++) {
-            if(validCommands[i].equals(aString))
-                return true;
-        }
-        return false;
+        Integer isValid = validCommands.getOrDefault(aString, 0);
+        return isValid == 1;
+
     }
 
     /**
@@ -30,8 +38,8 @@ public class CommandWords
      */
     public void showAll()
     {
-        for(String command: validCommands) {
-            System.out.print(command + "  ");
+        for(String i : validCommands.keySet()) {
+            System.out.print(i + " ");
         }
         System.out.println();
     }

@@ -12,7 +12,7 @@ public class Room
     private HashMap<String, Room> exits;
 
     private ArrayList<Things> staff;
-    private boolean trap;
+    private boolean trap,magicCookie;
     private static int cnt = 0;
 
     public Room(String description)
@@ -22,6 +22,16 @@ public class Room
         exits = new HashMap<>();
         staff =new ArrayList<>();
         trap = false;
+        magicCookie = false;
+    }
+
+    public boolean getMagicCookie() {
+        return magicCookie;
+    }
+
+
+    public void setMagicCookie() {
+        magicCookie = true;
     }
 
     /**
@@ -42,12 +52,18 @@ public class Room
         return id;
     }
 
+    public ArrayList<Things> getStaff() {
+        return staff;
+    }
     public void setTrap(boolean status){
         trap =status;
     }
     public boolean getTrap() {
         return trap;
     }
+
+    public void addStaff(Things item) {staff.add(item);}
+
 
     public String getLongDescription()
     {
@@ -73,13 +89,22 @@ public class Room
         this.staff.add(things);
     }
 
+    /**
+     * 展示房间内的物品
+     * @return 物品件数
+     */
     public int showThings(){
+        int sumWeight = 0;
         System.out.println("Let me show you the things in this room!");
         for(Things thing:staff){
+            sumWeight += thing.getWeight();
             System.out.println(thing.getName()+","+thing.getWeight()+","+thing.getDescription());
         }
+        System.out.println("total weight of the room is : "+sumWeight);
         return staff.size();
+
     }
+
     /**
      * 获取指定方向的房间
      * @param direction 选定的方向
