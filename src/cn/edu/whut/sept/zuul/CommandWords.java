@@ -6,7 +6,9 @@ public class CommandWords
 {
     private final HashMap<String, Integer> validCommands;
 
-
+    /**
+     *没有使用传统的String数组来存储指令，而是采用一个以下方法来实例化指令，同时避免了直接操作数组
+     */
     public CommandWords()
     {
         validCommands = new HashMap<>();

@@ -25,12 +25,19 @@ public class Player {
         return currentRoomId;
     }
 
+    /**
+     * 增加负重
+     * @param x 增加负重量
+     */
     public void updateLimitWeight(int x){this.limitWeight += x;}
 
     public void setCurrentRoomId(int currentRoomId) {
         this.currentRoomId = currentRoomId;
     }
 
+    /**
+     * 显示玩家所拥有的的物品项目
+     */
     public void showThings() {
         System.out.print("the items of the player are :");
         int sumWeight = 0;
@@ -42,6 +49,11 @@ public class Player {
         System.out.println("total weight of the player is : "+sumWeight);
     }
 
+    /**
+     * 拿取物品
+     * @param thing 物品
+     * @return 返回bool变量，固定为1
+     */
     public boolean takeThings(Things thing) {
         if(currentWeight + thing.getWeight() > limitWeight) return false;
         currentWeight += thing.getWeight();
@@ -49,6 +61,11 @@ public class Player {
         return true;
     }
 
+    /**
+     * 放下物品
+     * @param thingsName 物品名称String
+     * @return 返回丢弃的物品
+     */
     public Things dropThings(String thingsName) {
         int pos = -1;
         for(int i = 0; i < ownThings.size(); i++) {

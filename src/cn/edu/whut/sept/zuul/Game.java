@@ -220,7 +220,7 @@ public class Game
 
     /**
      *
-     * @param command 命令编号
+     * @param command 命令编号look
      * @return 如果有东西返回true，否则为false
      */
     private Integer look(Command command){
@@ -235,7 +235,7 @@ public class Game
 
     /**
      * 返回上一房间
-     * @param command 指令
+     * @param command 指令back
      * @return 0/1
      */
     private Integer back(Command command){
@@ -256,7 +256,7 @@ public class Game
 
     /**
      * 拿物品
-     * @param command 命令
+     * @param command 命令take
      * @return 0/1
      */
     private Integer take(Command command)
@@ -292,7 +292,7 @@ public class Game
 
     /**
      * 丢弃物品
-     * @param command 指令
+     * @param command 指令drop
      * @return 0/1
      */
     private Integer drop(Command command)
@@ -308,12 +308,13 @@ public class Game
             return 0;
         }
         currentRoom.addNewThings(thing);
+        System.out.println("Successfully drop");
         return 0;
     }
 
     /**
      * 展示房间内物品
-     * @param command 指令
+     * @param command 指令show
      * @return 0/1
      */
     private Integer showItems(Command command)
@@ -325,7 +326,7 @@ public class Game
 
     /**
      * 吃饼干
-     * @param command 指令
+     * @param command 指令Eat
      * @return 1/0
      */
     private Integer eat(Command command)
@@ -382,7 +383,7 @@ public class Game
 
     /**
      * 退出
-     * @param command 指令
+     * @param command 指令 quit
      * @return 没什么好说的
      */
     private Integer quit(Command command) {
