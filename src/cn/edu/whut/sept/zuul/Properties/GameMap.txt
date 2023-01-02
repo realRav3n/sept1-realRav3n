@@ -1,15 +1,15 @@
 6
-outside the main entrance of the university
+你在大学的入口处
 0
-in a lecture theater
+你在电影院中
 0
-in the campus pub
+你在大学酒吧中
 0
-in a computing lab
+你在计算机中心
 0
-in the computing admin office
+你在计算机学院主任办公室中，找xjb聊聊吧
 0
-in a magic room!You will be transported to a random room!
+啊，一个魔法房间，你可以从这里传送到任意你想去的位置
 1
 3
 east 2
@@ -27,7 +27,7 @@ west 1
 east 6
 1
 cookie
-a magic cookie!You can enhance your capacity by eating it!
+一块魔法饼干，快把它吃了！
 5
 1
 east 1

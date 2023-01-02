@@ -21,6 +21,10 @@ public class Player {
         return name;
     }
 
+    public int getLimitWeight() {
+        return limitWeight;
+    }
+
     public int getCurrentRoomId() {
         return currentRoomId;
     }
@@ -39,14 +43,14 @@ public class Player {
      * 显示玩家所拥有的的物品项目
      */
     public void showThings() {
-        System.out.print("the items of the player are :");
+        System.out.print("你拥有以下物品:");
         int sumWeight = 0;
         for(Things thing : ownThings) {
             System.out.print(thing.getName() + " ");
             sumWeight += thing.getWeight();
         }
         System.out.println();
-        System.out.println("total weight of the player is : "+sumWeight);
+        System.out.println("总重量是: "+sumWeight);
     }
 
     /**

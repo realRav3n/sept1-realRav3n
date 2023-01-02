@@ -143,7 +143,7 @@ public class Game
             Command command = parser.getCommand();
             finished = processCommand(command);
         }
-        System.out.println("Thank you for playing.  Good bye.");
+        System.out.println("感谢游玩这依托答辩.");
     }
 
     /**
@@ -200,7 +200,7 @@ public class Game
         Integer wantToQuit;
 
         if(command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
+            System.out.println("你在嗦肾么");
             return 0;
         }
         String commandWord = command.getCommandWord();
@@ -217,10 +217,10 @@ public class Game
      */
     private Integer printHelp(Command command)
     {
-        System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
+        System.out.println("你迷路了，你要寄了！");
+        System.out.println("你说的对，但是你可以做以下操作");
         System.out.println();
-        System.out.println("Your command words are:");
+        System.out.println("这些操作是:");
         parser.showCommands();
         return 0;
     }
@@ -233,7 +233,7 @@ public class Game
     {
         if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
-            System.out.println("Go where?");
+            System.out.println("Go去哪?");
             return 0;
         }
         String direction = command.getSecondWord();
@@ -241,12 +241,12 @@ public class Game
         Room nextRoom = currentRoom.getExit(direction);
 
         if (nextRoom == null) {
-            System.out.println("There is no door!");
+            System.out.println("此路不通= =!");
         }
         else {
             currentRoom = nextRoom;
             if(currentRoom.getTrap()==1) {
-                System.out.println("You were transferred to a random room");
+                System.out.println("你被传送到一个随机位置");
                 currentRoom = randomToRoom(currentRoom);
             }
             stack.addFirst(currentRoom.getId());
@@ -263,7 +263,7 @@ public class Game
      */
     private Integer look(Command command){
         if(command.hasSecondWord()) {
-            System.out.println("Look what?");
+            System.out.println("Look啥?");
         }
         else{
            currentRoom.showThings();
@@ -278,7 +278,7 @@ public class Game
      */
     private Integer back(Command command){
         if(command.hasSecondWord()) {
-            System.out.println("Back what?");
+            System.out.println("Back啥?");
         }
         else {
             Room lastRoom = backLastRoom(currentRoom);
@@ -300,7 +300,7 @@ public class Game
     private Integer take(Command command)
     {
         if(!command.hasSecondWord()) {
-            System.out.println("Take what?");
+            System.out.println("Take啥?");
             return 0;
         }
         String takeItemName = command.getSecondWord();
@@ -315,15 +315,15 @@ public class Game
             }
         }
         if(pos == -1) {
-            System.out.println("you can't take the item that doesn't exist");
+            System.out.println("你不能拿根本不存在的东西");
             return 0;
         }
         if(nowPlayer.takeThings(staff.get(pos))) {
             staff.remove(pos);
-            System.out.println("Successfully take");
+            System.out.println("成功抓取");
         }
         else {
-            System.out.println("no room for staff,you have to leave sth");
+            System.out.println("没有空间拿这个了，你必须丢点东西");
         }
         return 0;
     }
@@ -336,17 +336,17 @@ public class Game
     private Integer drop(Command command)
     {
         if(!command.hasSecondWord()) {
-            System.out.println("Drop what?");
+            System.out.println("Drop啥?");
             return 0;
         }
         String dropItemName = command.getSecondWord();
         Things thing = nowPlayer.dropThings(dropItemName);
         if(thing == null) {
-            System.out.println("you don't have this item!");
+            System.out.println("你没有这个物品!");
             return 0;
         }
         currentRoom.addNewThings(thing.getName(), thing.getDescription(), thing.getWeight());
-        System.out.println("Successfully drop");
+        System.out.println("成功丢弃");
         return 0;
     }
 
@@ -370,12 +370,12 @@ public class Game
     private Integer eat(Command command)
     {
         if(!command.hasSecondWord()) {
-            System.out.println("Eat what?");
+            System.out.println("Eat啥?");
             return 0;
         }
         String food = command.getSecondWord();
         if(!food.equals("cookie")) {
-            System.out.println("you can't eat " + food);
+            System.out.println("你不能吃 " + food);
             return 0;
         }
         nowPlayer.eatCookie();
@@ -419,12 +419,28 @@ public class Game
      */
     private Integer quit(Command command) {
         if(command.hasSecondWord()) {
-            System.out.println("Quit what?");
+            System.out.println("Quit啥?");
             return 0;
         }
         else {
+            DBUtil db = new DBUtil();
+            try{
+                db.getConnection();
+                String save_progress_sql = "call `update_user`(?,?,?);";
+                Object[] param = new Object[] { nowPlayer.getName(),this.currentRoom,nowPlayer.getLimitWeight()};
+                if (db.executeUpdate(save_progress_sql, param) > 0) {
+                    System.out.println("保存中...");
+                }else{
+                    System.out.println("连接失败！！！!");
+                }
+                this.currentRoom=idRoomMap.get(this.nowPlayer.getCurrentRoomId());
+                stack.add(this.currentRoom.getId());
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                db.closeAll();
+            }
             return 1;  // signal that we want to quit
         }
     }
-
 }

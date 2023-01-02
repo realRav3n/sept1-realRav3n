@@ -89,12 +89,12 @@ public class Room
      */
     public int showThings(){
         int sumWeight = 0;
-        System.out.println("Let me show you the things in this room!");
+        System.out.println("来看看这里有什么吧!");
         for(Things thing:staff){
             sumWeight += thing.getWeight();
             System.out.println(thing.getName()+","+thing.getWeight()+","+thing.getDescription());
         }
-        System.out.println("total weight of the room is : "+sumWeight);
+        System.out.println("总重量为 : "+sumWeight);
         return staff.size();
 
     }
