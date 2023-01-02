@@ -1,0 +1,44 @@
+6
+outside the main entrance of the university
+0
+in a lecture theater
+0
+in the campus pub
+0
+in a computing lab
+0
+in the computing admin office
+0
+in a magic room!You will be transported to a random room!
+1
+3
+east 2
+south 4
+west 3
+2
+apple
+我是一个朴实无华的苹果
+10
+Neutron-Matter
+这东西很重，你要是能抬起来必定是开了
+65535
+2
+west 1
+east 6
+1
+cookie
+a magic cookie!You can enhance your capacity by eating it!
+5
+1
+east 1
+0
+2
+north 1
+east 5
+0
+1
+west 4
+0
+1
+west 2
+0

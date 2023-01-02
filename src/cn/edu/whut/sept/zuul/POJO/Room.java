@@ -1,7 +1,6 @@
 package cn.edu.whut.sept.zuul.POJO;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Set;
 import java.util.HashMap;
 
@@ -12,26 +11,22 @@ public class Room
     private HashMap<String, Room> exits;
 
     private ArrayList<Things> staff;
-    private boolean trap,magicCookie;
+    private int trap;
+    private boolean magicCookie;
     private static int cnt = 0;
 
-    public Room(String description)
+    public Room(String description, int trap)
     {
         id = ++cnt;
         this.description = description;
         exits = new HashMap<>();
         staff =new ArrayList<>();
-        trap = false;
+        this.trap = trap;
         magicCookie = false;
     }
 
     public boolean getMagicCookie() {
         return magicCookie;
-    }
-
-
-    public void setMagicCookie() {
-        magicCookie = true;
     }
 
     /**
@@ -55,10 +50,8 @@ public class Room
     public ArrayList<Things> getStaff() {
         return staff;
     }
-    public void setTrap(boolean status){
-        trap =status;
-    }
-    public boolean getTrap() {
+
+    public int getTrap() {
         return trap;
     }
 
@@ -85,7 +78,8 @@ public class Room
     }
 
 
-    public void addNewThings(Things things){
+    public void addNewThings(String name,String description,int weight){
+        Things things =new Things(name, weight, description);
         this.staff.add(things);
     }
 
@@ -113,6 +107,7 @@ public class Room
     public Room getExit(String direction) {
         return exits.get(direction);
     }
+
 }
 
 

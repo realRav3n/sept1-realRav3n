@@ -16,7 +16,12 @@ package cn.edu.whut.sept.zuul;
 import cn.edu.whut.sept.zuul.POJO.Player;
 import cn.edu.whut.sept.zuul.POJO.Room;
 import cn.edu.whut.sept.zuul.POJO.Things;
+import cn.edu.whut.sept.zuul.util.FileUtil;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -27,18 +32,17 @@ public class Game
     private HashMap<Integer,Room> idRoomMap;
     private Deque<Integer> stack;
     private Player nowPlayer;
-    private int totalRoom = 6;
+    private int totalRoom ;
 
 
     /**
      * 创建游戏并初始化内部数据和解析器.
      */
-    public Game()
-    {
+    public Game() throws IOException {
         parser = new Parser();
         stack =new ArrayDeque<>();
         idRoomMap =new HashMap<>();
-        createRooms();
+        initMap();
         createPlayers();
 
     }
@@ -46,6 +50,7 @@ public class Game
     /**
      * 创建所有房间对象并连接其出口用以构建迷宫.
      */
+    /*
     private void createRooms()
     {
         Room outside, theater, pub, lab, office,transport;
@@ -92,6 +97,55 @@ public class Game
         stack.add(1);
     }
 
+     */
+
+    /**
+     * 读文件，并初始化地图
+     * @throws IOException
+     */
+    public void initMap() throws IOException {
+        FileReader fileReader = new FileReader("src/cn/edu/whut/sept/zuul/GameMap.txt");
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        String s;
+        s=bufferedReader.readLine();
+        this.totalRoom=Integer.parseInt(s);
+        //创建房间
+        for(int i=1;i<=this.totalRoom;i++) {
+            String description = bufferedReader.readLine();
+            s = bufferedReader.readLine();
+            int roomType = Integer.parseInt(s);
+            Room newRoom = new Room(description, roomType);
+            idRoomMap.put(newRoom.getId(), newRoom);
+        }
+        //对于每个房间，进行以下的识别
+        for(int i=1;i<=this.totalRoom;i++){
+            //读取路口数
+            Room nowRoom = idRoomMap.get(i);
+            s=bufferedReader.readLine();
+            int exitNum=Integer.parseInt(s);
+            //读路口
+            for(int j=0;j<exitNum;j++){
+                s=bufferedReader.readLine();
+                String direction,roomName;
+                Scanner tokenizer = new Scanner(s);
+                direction = tokenizer.next();
+                roomName = tokenizer.next();
+                nowRoom.setExit(direction,idRoomMap.get(Integer.parseInt(roomName)));
+            }
+            //读物品
+            s=bufferedReader.readLine();
+            int itemNum=Integer.parseInt(s);
+            for(int j=0;j<itemNum;j++){
+                String itemName,itemDescription,weight;
+                itemName=bufferedReader.readLine();
+                itemDescription=bufferedReader.readLine();
+                weight=bufferedReader.readLine();
+                nowRoom.addNewThings(itemName,itemDescription,Integer.parseInt(weight));
+            }
+        }
+        currentRoom = idRoomMap.get(1);  // start game outside
+        stack.add(1);
+    }
     /**
      *  游戏主控循环，直到用户输入退出命令后结束整个程序.
      */
@@ -147,8 +201,7 @@ public class Game
     private void createPlayers()
     {
         Player player;
-        player = new Player(10, "Raven", 1);
-
+        player = new Player(8, "Raven", 1);
         nowPlayer = player;
     }
     /**
@@ -206,8 +259,7 @@ public class Game
         }
         else {
             currentRoom = nextRoom;
-            if(currentRoom.getTrap())
-            {
+            if(currentRoom.getTrap()==1) {
                 System.out.println("You were transferred to a random room");
                 currentRoom = randomToRoom(currentRoom);
             }
@@ -307,7 +359,7 @@ public class Game
             System.out.println("you don't have this item!");
             return 0;
         }
-        currentRoom.addNewThings(thing);
+        currentRoom.addNewThings(thing.getName(), thing.getDescription(), thing.getWeight());
         System.out.println("Successfully drop");
         return 0;
     }
@@ -335,19 +387,12 @@ public class Game
             System.out.println("Eat what?");
             return 0;
         }
-        String eatCookie = command.getSecondWord();
-        if(!eatCookie.equals("cookie")) {
-            System.out.println("you can't eat " + eatCookie);
+        String food = command.getSecondWord();
+        if(!food.equals("cookie")) {
+            System.out.println("you can't eat " + food);
             return 0;
         }
-        if(currentRoom.getMagicCookie()) {
-            nowPlayer.updateLimitWeight(10);
-            System.out.println("you eat a magic cookie,now you can take 10kg things more!");
-        }
-        else {
-            System.out.println("no magic cookie in the room");
-        }
-
+        nowPlayer.eatCookie();
         return 0;
     }
 

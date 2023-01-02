@@ -81,4 +81,22 @@ public class Player {
         return thing;
     }
 
+    /**
+     * 吃魔法❥饼干
+     */
+    public void eatCookie(){
+        boolean haveCookie=false;
+        for (Things things:ownThings){
+            if(things.getName().equals("cookie")){
+                haveCookie =true;
+                ownThings.remove(things);
+                System.out.println("你吃了一块魔法饼干，你的负重能力增加啦,你可以多拿10公斤东西");
+                this.limitWeight+=10;
+                System.out.println("现在你的负重能力为"+this.limitWeight+"kg");
+                break;
+            }
+        }
+        if (!haveCookie)
+            System.out.println("你没有饼干");
+    }
 }
