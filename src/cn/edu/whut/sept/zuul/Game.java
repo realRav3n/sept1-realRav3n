@@ -8,7 +8,9 @@
  * Game类的实例将创建并初始化所有其他类:它创建所有房间，并将它们连接成迷宫；它创建解析器
  * 接收用户输入，并将用户输入转换成命令后开始运行游戏。
  *
- * @author  Michael Kölling and David J. Barnes
+ * 现在正式上线！
+ *
+ * @author  YJR
  * @version 1.0
  */
 package cn.edu.whut.sept.zuul;
@@ -16,12 +18,12 @@ package cn.edu.whut.sept.zuul;
 import cn.edu.whut.sept.zuul.POJO.Player;
 import cn.edu.whut.sept.zuul.POJO.Room;
 import cn.edu.whut.sept.zuul.POJO.Things;
-import cn.edu.whut.sept.zuul.util.FileUtil;
+import cn.edu.whut.sept.zuul.util.DBUtil;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.function.Function;
 
@@ -43,68 +45,15 @@ public class Game
         stack =new ArrayDeque<>();
         idRoomMap =new HashMap<>();
         initMap();
-        createPlayers();
-
+        login();
     }
-
-    /**
-     * 创建所有房间对象并连接其出口用以构建迷宫.
-     */
-    /*
-    private void createRooms()
-    {
-        Room outside, theater, pub, lab, office,transport;
-        Things apple;
-
-        //创建房间
-        outside = new Room("outside the main entrance of the university");
-        theater = new Room("in a lecture theater");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-        transport =new Room("middle there is a magical spring,you goes up..");
-        //建立索引
-        idRoomMap.put(outside.getId(),outside);
-        idRoomMap.put(theater.getId(),theater);
-        idRoomMap.put(pub.getId(),pub);
-        idRoomMap.put(lab.getId(),lab);
-        idRoomMap.put(office.getId(),office);
-        idRoomMap.put(transport.getId(),transport);
-        //创建初始物品
-        apple =new Things("apple",10,"我是一个朴实无华的苹果");
-        // initialise room exits
-        outside.setExit("east", theater);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
-        outside.addNewThings(apple);
-
-        theater.setExit("west", outside);
-        theater.setExit("east",transport);
-
-        transport.setExit("west",theater);
-        transport.setTrap(true);
-
-        pub.setExit("east", outside);
-        pub.setMagicCookie();
-
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
-
-        office.setExit("west", lab);
-
-
-        currentRoom = outside;  // start game outside
-        stack.add(1);
-    }
-
-     */
 
     /**
      * 读文件，并初始化地图
      * @throws IOException
      */
     public void initMap() throws IOException {
-        FileReader fileReader = new FileReader("src/cn/edu/whut/sept/zuul/GameMap.txt");
+        FileReader fileReader = new FileReader("src/cn/edu/whut/sept/zuul/Properties/GameMap.txt");
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         String s;
         s=bufferedReader.readLine();
@@ -144,8 +93,45 @@ public class Game
             }
         }
         currentRoom = idRoomMap.get(1);  // start game outside
-        stack.add(1);
     }
+
+    /**
+     * 从数据库中读取信息,实现登录功能
+     * 从数据库中获取存档
+     */
+    public void login(){
+        System.out.println("你好，请输入您的用户名！");
+        System.out.print(">>");
+        String input = new Scanner(System.in).nextLine();
+        DBUtil db = new DBUtil();
+        try{
+            db.getConnection();
+            String sqlTest = "SELECT * FROM `user` WHERE userName='"+input+"'";
+            ResultSet rs = db.executeQuery(sqlTest,null);
+            if(rs.next()){
+                System.out.println("欢迎回来！");
+                this.nowPlayer = new Player(rs.getInt("capacity"),rs.getString("userName"),rs.getInt("nowRoomId"));
+            }else{
+                String save_user_sql = "call `save_user`(?,?,?,@res);";
+                Object[] param = new Object[] { input, 0, 1000};
+                if (db.executeUpdate(save_user_sql, param) > 0) {
+                    System.out.println("未检测到您的旧有账户，已为您创建新账户");
+                    this.nowPlayer = new Player(8, input, 1);
+                }
+                else{
+                    System.out.println("连接异常!");
+                }
+            }
+            this.currentRoom=idRoomMap.get(this.nowPlayer.getCurrentRoomId());
+            stack.add(this.currentRoom.getId());
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            db.closeAll();
+        }
+        play();
+    }
+
     /**
      *  游戏主控循环，直到用户输入退出命令后结束整个程序.
      */
@@ -166,9 +152,9 @@ public class Game
     private void printWelcome()
     {
         System.out.println();
-        System.out.println("Welcome to the Koprulu Sector!");
-        System.out.println("Koprulu Sector is a piece of sh*t .");
-        System.out.println("Type 'help' if you need help.");
+        System.out.println("欢迎来到 学大工理汉武");
+        System.out.println("这是一所著名 5.489 ");
+        System.out.println("输入help已查看帮助");
         System.out.println();
         System.out.println(currentRoom.getLongDescription());
     }
