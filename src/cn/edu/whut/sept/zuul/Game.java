@@ -15,6 +15,8 @@
  */
 package cn.edu.whut.sept.zuul;
 
+import cn.edu.whut.sept.zuul.Command.Command;
+import cn.edu.whut.sept.zuul.Command.Parser;
 import cn.edu.whut.sept.zuul.POJO.Player;
 import cn.edu.whut.sept.zuul.POJO.Room;
 import cn.edu.whut.sept.zuul.POJO.Things;
@@ -281,8 +283,8 @@ public class Game
             System.out.println("Back啥?");
         }
         else {
-            Room lastRoom = backLastRoom(currentRoom);
             try{
+                Room lastRoom = backLastRoom(currentRoom);
                 currentRoom = lastRoom;
                 System.out.println(currentRoom.getLongDescription());
             }catch (Exception e){
