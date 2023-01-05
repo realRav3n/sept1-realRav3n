@@ -168,8 +168,7 @@ public class Game
      * @param param 操作的种类
      * @return 返回程序是否继续进行
      */
-    public Integer selectCommand(String param, Command command)
-    {
+    public Integer selectCommand(String param, Command command) {
         HashMap<String, Function<Command, Integer>> map = new HashMap<>();
         map.put("help", this::printHelp);
         map.put("go", this::goRoom);
@@ -429,7 +428,7 @@ public class Game
             try{
                 db.getConnection();
                 String save_progress_sql = "call `update_user`(?,?,?);";
-                Object[] param = new Object[] { nowPlayer.getName(),this.currentRoom,nowPlayer.getLimitWeight()};
+                Object[] param = new Object[] { nowPlayer.getName(),this.currentRoom.getId(),nowPlayer.getLimitWeight()};
                 if (db.executeUpdate(save_progress_sql, param) > 0) {
                     System.out.println("保存中...");
                 }else{

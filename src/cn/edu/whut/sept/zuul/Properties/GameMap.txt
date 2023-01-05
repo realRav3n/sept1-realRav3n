@@ -15,13 +15,16 @@
 east 2
 south 4
 west 3
-2
-apple
-我是一个朴实无华的苹果
-10
+3
+cloth
+我是一块朴实无华的布料
+5
 Neutron-Matter
 这东西很重，你要是能抬起来必定是开了
 65535
+stone
+我是一块比较重的石头
+10
 2
 west 1
 east 6

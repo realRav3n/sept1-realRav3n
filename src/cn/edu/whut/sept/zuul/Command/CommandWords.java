@@ -9,8 +9,7 @@ public class CommandWords
     /**
      *没有使用传统的String数组来存储指令，而是采用一个以下方法来实例化指令，同时避免了直接操作数组
      */
-    public CommandWords()
-    {
+    public CommandWords() {
         validCommands = new HashMap<>();
         validCommands.put("go", 1);
         validCommands.put("quit", 1);
@@ -32,7 +31,6 @@ public class CommandWords
     {
         Integer isValid = validCommands.getOrDefault(aString, 0);
         return isValid == 1;
-
     }
 
     /**
